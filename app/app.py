@@ -21,6 +21,7 @@ from pathlib import Path
 from flask import (
     Flask, jsonify, render_template, request, send_from_directory, url_for,
 )
+from flask_cors import CORS
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.utils import secure_filename
 
@@ -28,6 +29,7 @@ APP_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = APP_ROOT.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from app.auth import init_auth  # noqa: E402
 from app.config import Config, load_threshold, predictor_kwargs  # noqa: E402
 from app.utils.predictor import (  # noqa: E402
     ModelLoadError, PredictionError, build_predictor,
@@ -91,6 +93,26 @@ def create_app() -> Flask:
     app.config["MAX_CONTENT_LENGTH"] = Config.MAX_CONTENT_LENGTH
     app.config["SECRET_KEY"] = Config.SECRET_KEY
     app.jinja_env.globals["app_threshold"] = lambda: app.config.get("MODEL_THRESHOLD", 0.5)
+
+    # CORS — let the Next.js dev server (and any production frontend whose
+    # origin you configure via APP_CORS_ORIGINS) call /api/* and /predict.
+    cors_origins_env = os.environ.get(
+        "APP_CORS_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000",
+    )
+    cors_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+    CORS(
+        app,
+        resources={
+            r"/api/*": {"origins": cors_origins},
+            r"/predict": {"origins": cors_origins},
+            r"/health": {"origins": cors_origins},
+        },
+        supports_credentials=False,
+        expose_headers=["Content-Type"],
+    )
+
+    init_auth(app)
 
     kind = Config.MODEL_KIND
     threshold = load_threshold(kind=kind)
