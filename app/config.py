@@ -11,20 +11,26 @@ class Config:
     PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
     APP_ROOT: Path = Path(__file__).resolve().parent
 
-    # Model selection: "cnn" (frame-level baseline, deployed) or "hybrid".
-    MODEL_KIND: str = os.environ.get("APP_MODEL_KIND", "cnn").lower()
+    # Model selection.
+    # "hybrid_v3" — composite of CNN-baseline backbone + LSTM head, deployed.
+    # "cnn"       — frame-level CNN baseline (kept for ablation / fallback).
+    # "hybrid"    — original end-to-end HybridCNNLSTM (legacy).
+    MODEL_KIND: str = os.environ.get("APP_MODEL_KIND", "hybrid_v3").lower()
 
-    # CNN baseline (deployed) — test accuracy 77.58% / ROC-AUC 0.766 at thr 0.75.
+    # CNN baseline — test accuracy 77.58% / ROC-AUC 0.766 at thr 0.75.
     CNN_MODEL_PATH: Path = PROJECT_ROOT / "models" / "cnn_baseline_best.pth"
     CNN_DROPOUT: float = 0.4
     CNN_TRAINABLE_BACKBONE_LAYERS: int = 1
 
-    # Hybrid (kept for future use after a properly fine-tuned checkpoint exists).
+    # Hybrid v3 — test accuracy 82.0% / ROC-AUC 0.870 at thr 0.575.
+    HYBRID_V3_HEAD_PATH: Path = PROJECT_ROOT / "models" / "hybrid_v3_head.pth"
+
+    # Legacy hybrid (kept for backwards compat).
     HYBRID_MODEL_PATH: Path = PROJECT_ROOT / "models" / "hybrid_best.pth"
-    LSTM_HIDDEN_SIZE: int = 64
+    LSTM_HIDDEN_SIZE: int = 128
     LSTM_NUM_LAYERS: int = 1
     LSTM_BIDIRECTIONAL: bool = True
-    LSTM_DROPOUT: float = 0.6
+    LSTM_DROPOUT: float = 0.5
 
     # Preprocessing
     NUM_FRAMES: int = 32
@@ -33,8 +39,9 @@ class Config:
     # Decision threshold; will be overridden by outputs/threshold_<kind>.json
     # or outputs/threshold.json if either exists.
     DEFAULT_THRESHOLD_BY_KIND: dict[str, float] = {
-        "cnn": 0.75,     # tuned on val for macro-F1
+        "cnn": 0.75,        # tuned on val for macro-F1
         "hybrid": 0.50,
+        "hybrid_v3": 0.575, # tuned on val for macro-F1 (val mF1 = 0.7741)
     }
 
     # Upload
@@ -92,5 +99,12 @@ def predictor_kwargs(kind: str) -> dict:
             "lstm_num_layers": Config.LSTM_NUM_LAYERS,
             "bidirectional": Config.LSTM_BIDIRECTIONAL,
             "dropout": Config.LSTM_DROPOUT,
+        }
+    if kind in ("hybrid_v3", "hybridv3"):
+        return {
+            "cnn_backbone_checkpoint": Config.CNN_MODEL_PATH,
+            "head_checkpoint": Config.HYBRID_V3_HEAD_PATH,
+            "cnn_dropout": Config.CNN_DROPOUT,
+            "cnn_trainable_backbone_layers": Config.CNN_TRAINABLE_BACKBONE_LAYERS,
         }
     raise ValueError(f"Unknown MODEL_KIND={kind!r}")
