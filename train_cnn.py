@@ -33,6 +33,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--resume", type=str, default="")
     parser.add_argument("--disable-pretrained", action="store_true")
     parser.add_argument("--full-data", action="store_true")
+    parser.add_argument("--early-stop-patience", type=int, default=5)
     return parser.parse_args()
 
 
@@ -201,6 +202,7 @@ def main() -> None:
 
     best_val_acc = 0.0
     start_epoch = 1
+    epochs_without_improvement = 0
     history = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": [], "lr": []}
 
     if args.resume:
@@ -249,6 +251,7 @@ def main() -> None:
 
         if val_acc > best_val_acc:
             best_val_acc = val_acc
+            epochs_without_improvement = 0
             save_checkpoint(
                 checkpoint_path=checkpoint_path,
                 model=model,
@@ -259,6 +262,14 @@ def main() -> None:
                 args=args,
             )
             print(f"Saved best checkpoint: {checkpoint_path}")
+        else:
+            epochs_without_improvement += 1
+            if epochs_without_improvement >= args.early_stop_patience:
+                print(
+                    f"Early stopping: no val_acc improvement for "
+                    f"{args.early_stop_patience} epochs."
+                )
+                break
 
     plot_training_curves(history=history, out_path=curve_path)
     with history_path.open("w", encoding="utf-8") as fp:

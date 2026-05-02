@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About — Deepfake Detection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container">
+      <a href="{{ url_for('index') }}" class="brand">Deepfake Detection</a>
+      <nav><a href="{{ url_for('index') }}">Demo</a></nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h1>About this model</h1>
+
+      {% if kind == "cnn" %}
+        <p>
+          The deployed model is a <strong>frame-level ResNet-50 CNN</strong>
+          fine-tuned for binary deepfake classification on a subset of
+          FaceForensics++. For each uploaded video the app extracts
+          {{ num_frames }} face crops, runs each through the CNN, and uses the
+          <em>mean</em> of per-frame fake probabilities as the video-level
+          score.
+        </p>
+
+        <h2>Performance (test split, 150 videos / 4 800 frames)</h2>
+        <table class="kv-table">
+          <tbody>
+            <tr><th>Decision threshold</th><td>{{ '%.3f' % threshold }} (tuned on val for macro-F1)</td></tr>
+            <tr><th>Accuracy</th><td>77.58 %</td></tr>
+            <tr><th>ROC-AUC</th><td>0.7657</td></tr>
+            <tr><th>Macro F1</th><td>0.6433</td></tr>
+            <tr><th>F1 real / fake</th><td>0.4258 / 0.8607</td></tr>
+            <tr><th>Recall real / fake</th><td>0.4156 / 0.8659</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Architecture</h2>
+        <ul>
+          <li>Backbone: ResNet-50, ImageNet (IMAGENET1K_V2) pretrained</li>
+          <li>Head: dropout({{ '%.1f' % 0.4 }}) + linear(2048 → 1) → sigmoid</li>
+          <li>Trainable backbone layers during training: 1 (last block)</li>
+          <li>Input: {{ num_frames }} face crops at {{ image_size }}×{{ image_size }} per video</li>
+          <li>Aggregation: mean of per-frame fake probabilities</li>
+        </ul>
+
+      {% else %}
+        <p>
+          End-to-end CNN + BiLSTM hybrid for video-level deepfake detection.
+          Note: this configuration is currently a placeholder — the CNN
+          baseline (above) is the deployed default in this build because the
+          frozen-feature hybrid did not generalise on test.
+        </p>
+
+        <h2>Architecture</h2>
+        <ul>
+          <li>Backbone: ResNet-50, ImageNet pretrained</li>
+          <li>Temporal head: BiLSTM</li>
+          <li>Input: {{ num_frames }} face crops at {{ image_size }}×{{ image_size }} per video</li>
+          <li>Decision threshold: {{ '%.3f' % threshold }}</li>
+        </ul>
+      {% endif %}
+
+      <h2>Training pipeline</h2>
+      <ol>
+        <li>Frame extraction (OpenCV, 32 evenly-spaced frames per video)</li>
+        <li>Face detection &amp; cropping (facenet-pytorch MTCNN, 224×224 with 20-px margin)</li>
+        <li>CNN training (<code>train_cnn.py</code>) with ImageNet-pretrained backbone, last block trainable</li>
+        <li>Threshold calibration (<code>tune_cnn_threshold.py</code>) — sweep on val,
+            pick threshold that maximises macro-F1</li>
+      </ol>
+
+      {% if notes %}
+        <h2>Checkpoint notes</h2>
+        <p class="muted">{{ notes }}</p>
+      {% endif %}
+
+      <h2>Limitations</h2>
+      <ul>
+        <li>Trained on a small subset (700 train / 150 val / 150 test videos).</li>
+        <li>4:1 fake:real class skew. Macro-F1 is reported alongside accuracy
+            so majority-class collapse cannot hide poor performance on real
+            videos.</li>
+        <li>Real recall is ~42 % at the deployed threshold — the model still
+            mislabels a non-trivial fraction of real videos as fake.</li>
+        <li>Designed as a course demo, not for forensic use.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

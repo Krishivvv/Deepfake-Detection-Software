@@ -49,6 +49,12 @@ venv.bak/
 *.pkl
 *.model
 
+# Web app runtime
+/app/static/uploads/*
+!/app/static/uploads/.gitkeep
+/app/logs/*
+!/app/logs/.gitkeep
+
 # OS specific
 .DS_Store
 Thumbs.db

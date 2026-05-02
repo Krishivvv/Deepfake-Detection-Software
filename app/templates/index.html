@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deepfake Detection — Demo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container">
+      <a href="{{ url_for('index') }}" class="brand">Deepfake Detection</a>
+      <nav><a href="{{ url_for('about') }}">About</a></nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% if startup_error %}
+      <div class="alert alert-error">
+        <strong>Server is not ready.</strong>
+        <div class="muted small">{{ startup_error }}</div>
+      </div>
+    {% endif %}
+
+    <section class="card">
+      <h1>Detect deepfakes in a video</h1>
+      <p class="muted">
+        Upload a short clip (≤ {{ max_mb }} MB, formats:
+        {{ allowed_exts | join(", ") }}). The model runs locally on your CPU
+        and returns a REAL / FAKE prediction with a confidence score.
+      </p>
+
+      <form id="upload-form" class="upload-form" enctype="multipart/form-data">
+        <label class="dropzone" id="dropzone" tabindex="0">
+          <input type="file" id="video-input" name="video"
+                 accept="video/*" hidden>
+          <span class="dz-icon">▲</span>
+          <span class="dz-label">Click to choose a video, or drag &amp; drop</span>
+          <span class="dz-filename muted small" id="dz-filename">No file selected</span>
+        </label>
+        <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+          Analyze video
+        </button>
+      </form>
+
+      <div id="status" class="status hidden" role="status" aria-live="polite">
+        <div class="spinner"></div>
+        <div class="status-text">Uploading and analysing…</div>
+      </div>
+
+      <div id="error-box" class="alert alert-error hidden"></div>
+
+      <div id="result-box" class="hidden">
+        <h2 class="result-heading"
+            id="result-label">—</h2>
+        <div class="confidence-wrap">
+          <div class="confidence-bar"><span id="conf-fill"></span></div>
+          <div class="confidence-text muted small">
+            confidence <strong id="conf-pct">—</strong>
+          </div>
+        </div>
+        <dl class="kv">
+          <dt>P(fake)</dt><dd id="p-fake">—</dd>
+          <dt>P(real)</dt><dd id="p-real">—</dd>
+          <dt>Threshold</dt><dd id="thr">—</dd>
+          <dt>Frames with face</dt><dd id="frames-faces">—</dd>
+          <dt>Inference time</dt><dd id="t-inf">—</dd>
+          <dt>Total time</dt><dd id="t-tot">—</dd>
+        </dl>
+      </div>
+    </section>
+
+    <p class="muted small footer-note">
+      Model: ResNet-50 + BiLSTM hybrid. Decision threshold {{ '%.3f' % threshold }}.
+      Uploads are deleted after each prediction.
+    </p>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
