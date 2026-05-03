@@ -147,7 +147,7 @@ PyTorch-only base or strip the CUDA libs.
 
 ## Production checklist (before exposing this on the internet)
 
-This demo was built for course evaluation, not as a hardened service.
+This is a research / development build, not a hardened service.
 Before exposing it beyond `localhost`:
 
 - [ ] Replace `Config.SECRET_KEY` with a real random secret (≥32 bytes).

@@ -1,8 +1,8 @@
 """
-Train the end-to-end CNN-LSTM hybrid (Week 4).
+Train the end-to-end CNN-LSTM hybrid.
 
-Default hyperparameters target a Colab T4. For a quick local sanity run use
-e.g. `--epochs 1 --batch-size 2 --num-frames 8 --num-workers 0`.
+Default hyperparameters target a Colab T4 GPU. For a quick local sanity run
+use e.g. `--epochs 1 --batch-size 2 --num-frames 8 --num-workers 0`.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from src.models.hybrid_model import create_hybrid_model_and_optimizer
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Week 4 hybrid CNN-LSTM training.")
+    parser = argparse.ArgumentParser(description="Hybrid CNN-LSTM training (end-to-end).")
     parser.add_argument("--project-root", type=str, default=str(Path(__file__).resolve().parent))
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--epochs", type=int, default=20)

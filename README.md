@@ -13,7 +13,9 @@ in ~15 seconds, all on your machine — no third-party APIs.
 
 > **Headline numbers** (held-out 150-video test set):
 > **82.0 % accuracy · ROC-AUC 0.870 · macro-F1 0.751 · real-recall 73 %.**
-> See [HANDOFF.md](HANDOFF.md) for the full diagnostics trace.
+> Architecture, training procedure and limitations are documented in
+> [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md) and
+> [TRAINING_GUIDE.md](TRAINING_GUIDE.md).
 
 ## Tech stack
 
@@ -207,7 +209,6 @@ deepfake-detection/
 ├── presentation/                      .pptx + scripts + screenshots
 ├── requirements.txt
 ├── README.md                          ← this file
-├── HANDOFF.md
 ├── CODE_DOCUMENTATION.md
 ├── TRAINING_GUIDE.md
 ├── DEPLOYMENT_GUIDE.md

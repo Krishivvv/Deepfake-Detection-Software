@@ -15,7 +15,7 @@ from src.models.resnet_classifier import create_model_and_optimizer
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Week 3 CNN baseline (local quick training).")
+    parser = argparse.ArgumentParser(description="CNN baseline training (frame-level).")
     parser.add_argument("--project-root", type=str, default=str(Path(__file__).resolve().parent))
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--epochs", type=int, default=3)

@@ -29,7 +29,7 @@ const FAQ = [
   },
   {
     q: "Is this fit for forensic use?",
-    a: "No — and we say so on the About page. Veridex is a course / research demo. Predictions are probabilistic, real-recall is not 100 %, and the model has only been evaluated on FaceForensics++.",
+    a: "No — and we say so on the About page. Veridex is a research demo. Predictions are probabilistic, real-recall is not 100 %, and the model has only been evaluated on FaceForensics++.",
   },
 ];
 
@@ -45,8 +45,8 @@ export function FAQAccordion() {
             Questions you'll probably ask.
           </h2>
           <p className="mt-4 text-ink-300 leading-relaxed">
-            If something is missing here, the README and HANDOFF in the repo
-            have a deeper trace of the design decisions.
+            If something is missing here, the README and the engineering
+            docs in the repo have a deeper trace of the design decisions.
           </p>
         </div>
 

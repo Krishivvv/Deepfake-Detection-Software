@@ -22,11 +22,11 @@ deepfake-detection/
 │       ├── detect_faces.py           MTCNN face detector + cropper
 │       ├── create_splits.py          builds data/splits/*.csv
 │       └── run_pipeline.py           one-shot raw→processed pipeline
-├── train_cnn.py                      Week 3: train CNN baseline
+├── train_cnn.py                      train CNN baseline (frame-level)
 ├── evaluate_cnn.py                   evaluate CNN baseline
-├── train_hybrid.py                   Week 4: train end-to-end HybridCNNLSTM
+├── train_hybrid.py                   train end-to-end HybridCNNLSTM (GPU path)
 ├── evaluate_hybrid.py                evaluate HybridCNNLSTM
-├── extract_features.py               cache frozen ResNet-50 features (Week 5)
+├── extract_features.py               cache frozen ResNet-50 features (CPU path)
 ├── extract_features_cnn.py           cache features from trained CNN backbone
 ├── train_hybrid_v2.py                train LSTM head on cached features
 ├── evaluate_hybrid_cached.py         fast eval on cached features
