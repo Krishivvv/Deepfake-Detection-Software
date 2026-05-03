@@ -23,7 +23,7 @@ from pptx.util import Inches, Pt
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-# Project palette (per original brief)
+# Project palette (emerald accent on charcoal)
 NAVY = RGBColor(0x1E, 0x27, 0x61)
 TEAL = RGBColor(0x02, 0x80, 0x90)
 TEAL_LIGHT = RGBColor(0x4F, 0xB3, 0xBF)
@@ -96,7 +96,7 @@ def add_title_slide(prs: Presentation) -> None:
     foot_box = slide.shapes.add_textbox(Inches(0.7), Inches(6.4), Inches(11.6), Inches(0.5))
     foot = foot_box.text_frame.paragraphs[0]
     fr = foot.add_run()
-    fr.text = "Final Project Presentation"
+    fr.text = "Hybrid ResNet-50 + BiLSTM · FaceForensics++"
     fr.font.size = Pt(16)
     fr.font.color.rgb = TEAL_LIGHT
 
@@ -436,7 +436,7 @@ def main() -> None:
             "Real-class recall ≈ 42 % — a meaningful fraction of authentic videos are mislabeled FAKE.",
             "Trained on a 700-video subset of FaceForensics++; published results in the 90 %+ range fine-tune the backbone end-to-end on a GPU.",
             "Bounded by 224 × 224 face crops × 32 frames; no body cues, no audio, no compression-domain features.",
-            "Designed as a course demo, not for forensic use.",
+            "Research demo only — not a forensic-grade detector.",
         ],
     )
 

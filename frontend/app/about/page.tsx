@@ -9,11 +9,11 @@ export default function AboutPage() {
           A research demo for detecting face-manipulated video.
         </h1>
         <p className="mt-5 text-ink-300 leading-relaxed text-lg">
-          Veridex was built as a final-year project to study practical
-          deepfake detection on commodity hardware. It pairs a fine-tuned
-          ResNet-50 with a small bidirectional LSTM, calibrates the decision
-          threshold on validation, and ships the result behind a Flask
-          backend and this Next.js frontend.
+          Veridex is a practical deepfake detector built around a hybrid
+          ResNet-50 + BiLSTM trained on FaceForensics++. The decision
+          threshold is calibrated on validation, the inference pipeline runs
+          locally on commodity hardware, and the whole stack — backend,
+          model, frontend — is open source.
         </p>
       </header>
 
@@ -175,7 +175,7 @@ const LIMITS = [
   {
     title: "Not for forensic use.",
     body:
-      "Designed as a research / class demo. Predictions are probabilistic; novel manipulation pipelines may transfer poorly.",
+      "Research demo only. Predictions are probabilistic; novel manipulation pipelines may transfer poorly.",
   },
 ];
 

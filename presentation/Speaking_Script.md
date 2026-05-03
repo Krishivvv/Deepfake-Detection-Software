@@ -1,25 +1,25 @@
-# Speaker Script — Final Presentation
+# Speaker Script
 
 Pair this with `Final_Presentation.pptx` (same folder). Each block below
 is the narration for one slide. Times assume a steady delivery; the
 total scripted runtime is **~10 minutes**, leaving room for Q&A.
 
-> **Tip:** practise the model architecture and threshold-calibration
-> slides until you can explain each in 60 seconds without notes — those
-> are the two questions an evaluator is most likely to dig into.
+> **Tip:** practise the architecture and threshold-calibration slides
+> until you can explain each in 60 seconds without notes — those are
+> the two questions an audience is most likely to dig into.
 
 ---
 
 ## Slide 1 — Title (0:30)
 
-> "Good morning. This is my final-project presentation: a deepfake
-> detection system built on a subset of FaceForensics++.
+> "Hello. This is Veridex — a deepfake video detection system built on
+> a subset of FaceForensics++.
 >
 > The deliverable is a working web demo backed by a hybrid CNN-LSTM
 > model that hits 82 percent test accuracy at the default threshold and
 > ROC-AUC of 0.87. I'll walk through the problem, the dataset, the
-> architecture choices I iterated through, the training procedure,
-> the results, and a live demo screenshot at the end."
+> architecture choices we iterated through, the training procedure, the
+> results, and a live demo of the running system at the end."
 
 ---
 
@@ -234,7 +234,7 @@ total scripted runtime is **~10 minutes**, leaving room for Q&A.
 >
 > The model only sees 32 face crops per video at 224 by 224.
 > No body cues, no audio, no compression-domain features. This
-> is a class demo, not a forensic tool."
+> is a research demo, not a forensic tool."
 
 ---
 
@@ -288,8 +288,8 @@ calibration that lifted real-recall from 5.5 % to 73 %.
 A: Yes. The model is trained on four specific manipulation types —
 deepfakes, face2face, faceswap, neuraltextures. A novel manipulation
 that doesn't share statistics with any of these would likely transfer
-poorly. This is why the README explicitly says "course demo, not for
-forensic use."
+poorly. This is why the README explicitly flags the system as a
+research demo, not for forensic use.
 
 **Q: Why the BiLSTM and not a Transformer?**
 A: 32 frames is a short sequence; LSTMs are competitive at that scale
