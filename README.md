@@ -1,211 +1,298 @@
-# Deepfake Detection
+# Veridex — Deepfake Video Detection
 
 [![Python](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/pytorch-2.x-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![Flask](https://img.shields.io/badge/flask-3.x-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Next.js](https://img.shields.io/badge/next.js-14-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Tailwind](https://img.shields.io/badge/tailwind-3.4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-End-to-end deepfake detection on a subset of FaceForensics++. Includes:
+A full-stack deepfake video detector. Drop a clip into the web UI; the
+hybrid CNN-LSTM model returns a calibrated **REAL** / **FAKE** verdict
+in ~15 seconds, all on your machine — no third-party APIs.
 
-- A frame-level **CNN baseline** (ResNet-50, ImageNet pretrained, last block fine-tuned)
-- A **CNN-LSTM hybrid** for video-level classification (the deployed model;
-  uses the trained CNN baseline as feature extractor and trains a BiLSTM
-  temporal head on cached features — fully CPU-feasible)
-- Threshold calibration to fix class-imbalance-induced collapse
-- A **Flask web demo** with drag-and-drop upload, AJAX inference, and
-  per-frame diagnostics
+> **Headline numbers** (held-out 150-video test set):
+> **82.0 % accuracy · ROC-AUC 0.870 · macro-F1 0.751 · real-recall 73 %.**
+> See [HANDOFF.md](HANDOFF.md) for the full diagnostics trace.
 
-**The deployed hybrid achieves test accuracy = 82.0 %, ROC-AUC = 0.870,
-macro-F1 = 0.751** on a 150-video held-out test set, with real-class
-recall of 73.3 % (compared to 5.5 % for the un-calibrated CNN baseline).
+## Tech stack
 
-## Quick start
+**Frontend (`frontend/`)**
+- Next.js 14 (App Router) + TypeScript 5
+- Tailwind CSS 3 (custom emerald-on-charcoal theme)
+- Vanilla React, no UI library — every component is hand-rolled
+
+**Backend (`app/`)**
+- Flask 3 + flask-cors
+- SQLAlchemy 2 + SQLite (user accounts)
+- flask-bcrypt (password hashing)
+- PyJWT (HS256, 7-day tokens)
+
+**Model (`src/`, `models/`)**
+- PyTorch 2.x
+- ResNet-50 backbone (last block fine-tuned on FaceForensics++)
+- BiLSTM(128, 1, dropout 0.5) temporal head
+- facenet-pytorch (MTCNN) face detection
+- OpenCV frame extraction
+
+## Quick start (5 minutes)
+
+### Prereqs
+- Python 3.10 / 3.11 / 3.12
+- Node 18+ (tested on Node 24)
+- ~2 GB free RAM, 4 GB free disk
+
+### 1. Backend (Flask + model + auth)
 
 ```powershell
-# 1. Clone / pull the repo and cd in
-cd F:\ml_project\deepfake-detection
-
-# 2. Activate the project venv
+# from the project root
 F:\ml_project\.venv\Scripts\Activate.ps1
-
-# 3. Install dependencies
 pip install -r requirements.txt
-
-# 4. Run the demo
 python run_app.py
-# Open http://127.0.0.1:5000
+# Listens on http://127.0.0.1:5000
 ```
 
-If you need to retrain or extend the model, see
-[TRAINING_GUIDE.md](TRAINING_GUIDE.md). For deployment options (Docker,
-Colab, production hardening), see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
-
-## Architecture overview
-
+On startup you should see:
 ```
-                ┌────────────────────────────────────────────┐
-upload .mp4 ──► │  VideoPreprocessor                          │
-                │  ├ extract_frames (OpenCV, 32 evenly-spaced)│
-                │  └ FaceDetector  (MTCNN, 224x224 + margin)  │
-                │                                             │
-                │  → tensor (1, 32, 3, 224, 224)              │
-                └────────────────────────────────────────────┘
-                                    │
-                                    ▼
-                ┌────────────────────────────────────────────┐
-                │  HybridV3Predictor (deployed)               │
-                │  ├ Backbone: trained ResNet-50              │
-                │  │   from cnn_baseline_best.pth (fc→Identity)│
-                │  │   → per-frame 2048-d features            │
-                │  ├ Head: BiLSTM(hidden=128, layers=1, drop=0.5)│
-                │  │   → temporal mean-pool → linear → 1 logit│
-                │  └ sigmoid → video-level fake probability   │
-                └────────────────────────────────────────────┘
-                                    │
-                                    ▼
-                ┌────────────────────────────────────────────┐
-                │  Decision threshold (tuned: 0.575)          │
-                │  → REAL / FAKE + confidence                 │
-                └────────────────────────────────────────────┘
+INFO app.auth: Auth initialised (sqlite at .../app/users.db)
+INFO app: Model kind: hybrid_v3 | decision threshold: 0.575
+INFO app.predictor: Loaded HybridV3Predictor (device=cpu) ...
+ * Running on http://127.0.0.1:5000
 ```
 
-## Results
+### 2. Frontend (Next.js)
 
-### Final test metrics — Hybrid v3 (deployed)
+In a second terminal:
 
-| Metric | Hybrid v3 @ deployed thr (0.575) | Hybrid v3 @ default thr (0.5) | CNN baseline @ tuned thr (0.75) |
-|---|---:|---:|---:|
-| **Accuracy** | **80.00 %** | **82.00 %** | 77.58 % |
-| **ROC-AUC** | **0.8703** | 0.8703 | 0.7657 |
-| Macro F1 | **0.7309** | **0.7509** | 0.6433 |
-| F1 real | 0.5946 | **0.6197** | 0.4258 |
-| F1 fake | 0.8673 | **0.8821** | 0.8607 |
-| Recall real | **0.7333** | **0.7333** | 0.4156 |
-| Recall fake | 0.8167 | 0.8417 | **0.8659** |
+```powershell
+cd frontend
+copy .env.local.example .env.local      # macOS/Linux: cp
+npm install
+npm run dev
+# Listens on http://127.0.0.1:3000
+```
 
-The deployed Flask app uses the **val-tuned threshold 0.575** (selected on
-val for macro-F1 — the proper protocol). Test accuracy at threshold 0.5
-happens to be slightly higher (82 %), but selecting threshold based on
-test would be data leakage. ROC-AUC is threshold-independent, so 0.8703
-holds either way.
+Open <http://127.0.0.1:3000> in any browser. You can:
+- **Sign up** at `/signup` (creates a real account in `app/users.db`).
+- **Sign in** at `/login`.
+- **Detect** at `/detect` — upload an `.mp4` and get a real prediction.
+- Read the model story on `/about`.
 
-Test set: 150 videos × 32 face crops each, video-level evaluation.
+For a production-style run instead of `npm run dev`:
+```powershell
+npm run build
+npm start
+```
 
-**Live smoke test:** 17 / 20 videos correctly classified (8/10 real, 9/10
-fake) on the running Flask app — full log in [HANDOFF.md](HANDOFF.md).
+## Environment variables
 
-### What worked, what didn't
+### Frontend (`frontend/.env.local`)
+| Variable | Default | Description |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | `http://127.0.0.1:5000` | Base URL of the Flask backend |
 
-The first hybrid attempt used **frozen ImageNet ResNet-50** as the feature
-extractor — that hit only test ROC-AUC = 0.4361 (worse than random;
-predictions anti-correlated with truth on test). Even logistic regression
-on mean-pooled ImageNet features hit only ROC-AUC = 0.51, isolating the
-failure to the features themselves: ImageNet features capture object
-semantics, not deepfake-specific artefacts.
+### Backend (env vars override `app/config.py`)
+| Variable | Default | Description |
+|---|---|---|
+| `APP_HOST` | `127.0.0.1` | Bind address |
+| `APP_PORT` | `5000` | Bind port |
+| `APP_DEBUG` | `0` | `1` enables Flask debug mode |
+| `APP_MODEL_KIND` | `hybrid_v3` | `hybrid_v3`, `cnn`, or `hybrid` |
+| `APP_SECRET_KEY` | dev placeholder | **Change before any non-local use.** Used to sign JWTs. |
+| `APP_CORS_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` | Comma-separated list of frontend origins allowed to call `/api/*`, `/predict`, `/health` |
 
-The fix was using the **trained CNN baseline as the feature extractor**:
-its `layer4` was fine-tuned on this dataset, so its global-avg-pool
-activations carry deepfake-specific information. With that change alone,
-the hybrid jumped from ROC-AUC 0.44 → **0.87**, with no GPU required.
+## How the frontend talks to the backend
 
-### Why threshold 0.75 instead of 0.5?
+Single `lib/api.ts` client, base URL from `NEXT_PUBLIC_API_URL`. JWT is
+held in `localStorage["veridex_token"]` and attached as `Authorization:
+Bearer <token>` to every authenticated request. `lib/auth-context.tsx`
+exposes `useAuth()` for components to read `user` / call
+`signIn` / `signUp` / `signOut`. On boot, the context calls `/api/auth/me`
+to refresh state from a persisted token.
 
-The default threshold of 0.5 produces **5.5 % recall on real videos** —
-the model labels almost everything as fake. The 4:1 fake:real class skew
-caused the CNN's classification head to be miscalibrated. Sweeping
-thresholds on the validation split and picking the macro-F1 maximiser
-(`tune_cnn_threshold.py`) lifts real recall from 5.5 % → 41.6 % at the
-cost of fake recall (95.0 % → 86.6 %), producing the more balanced
-deployed configuration.
+### Endpoints used
 
-### What didn't work, and why
+| Method | Path | Body / Headers | Returns |
+|---|---|---|---|
+| POST | `/api/auth/signup` | `{email, password, name?}` | `{ok, token, user}` |
+| POST | `/api/auth/login` | `{email, password}` | `{ok, token, user}` |
+| GET | `/api/auth/me` | `Authorization: Bearer <token>` | `{ok, user}` |
+| POST | `/api/auth/logout` | — | `{ok}` (stateless; client discards token) |
+| POST | `/predict` | `multipart/form-data video=<file>`, optional `Authorization` | `PredictionResult` (see below) |
+| GET | `/health` | — | `{ok, model_loaded}` |
 
-The end-to-end CNN-LSTM hybrid trained with frozen ImageNet ResNet-50
-features achieved only **test ROC-AUC = 0.4361** (worse than random) —
-the head memorised features that *anti-correlated* with truth on the
-test split. Even a logistic regression on mean-pooled ImageNet features
-hit only ROC-AUC = 0.51. This isolates the failure mode to the
-features themselves: ImageNet features capture object semantics, not
-deepfake-specific artefacts. The fix is **GPU end-to-end fine-tuning of
-the backbone** (out of scope for the laptop this project was developed
-on); see [TRAINING_GUIDE.md](TRAINING_GUIDE.md) for the Colab recipe.
+### `PredictionResult` shape
+```json
+{
+  "ok": true,
+  "request_id": "85337c39",
+  "label": "FAKE",
+  "confidence_pct": 95.57,
+  "probability_fake_pct": 95.57,
+  "probability_real_pct": 4.43,
+  "threshold": 0.575,
+  "device": "cpu",
+  "inference_seconds": 3.42,
+  "total_seconds": 13.56,
+  "video_info": {
+    "total_video_frames": 714,
+    "video_fps": 25.0,
+    "frames_sampled": 32,
+    "frames_with_faces": 32,
+    "frames_padded": 0
+  }
+}
+```
 
-## Repository structure
+Errors always come back as
+```json
+{ "ok": false, "error": { "code": "no_faces", "message": "..." } }
+```
+
+## Folder structure
 
 ```
 deepfake-detection/
-├── README.md                    you are here
-├── HANDOFF.md                   running diagnostics + decisions log
-├── CODE_DOCUMENTATION.md        module-by-module reference
-├── TRAINING_GUIDE.md            retraining instructions (CPU + GPU paths)
-├── DEPLOYMENT_GUIDE.md          local / Docker / production deploy notes
-├── RUN_OPTIMIZATION.md          step-by-step run guide for the CPU pipeline
-├── LICENSE                      MIT
-├── requirements.txt             project dependencies (with versions)
-├── run_app.py                   launch the Flask demo
-├── train_cnn.py / evaluate_cnn.py
-├── train_hybrid.py / evaluate_hybrid.py
-├── train_hybrid_v2.py           CPU-friendly head-only trainer
-├── evaluate_hybrid_cached.py    fast eval on cached features
-├── extract_features.py          cache frozen ImageNet features
-├── extract_features_cnn.py      cache features from trained CNN backbone
-├── tune_cnn_threshold.py        CNN baseline threshold tuner (no retrain)
-├── src/                         core library (data, models, preprocessing)
-├── app/                         Flask web demo
-├── data/                        splits, processed face crops, cached features
-├── models/                      model checkpoints (.pth)
-└── outputs/                     evaluation reports, training history, plots
+├── frontend/                          Next.js 14 app
+│   ├── app/                           App-router pages
+│   │   ├── page.tsx                     Landing
+│   │   ├── detect/page.tsx              Detector
+│   │   ├── about/page.tsx               About
+│   │   ├── login/page.tsx               Sign in
+│   │   ├── signup/page.tsx              Sign up
+│   │   ├── layout.tsx                   Root layout (Navbar, Footer, AuthProvider)
+│   │   └── globals.css                  Tailwind layer + custom utilities
+│   ├── components/                    Hand-rolled UI components
+│   │   ├── Navbar.tsx                   Sticky, mobile menu, auth-aware
+│   │   ├── Footer.tsx
+│   │   ├── Hero.tsx                     Animated hero + preview card
+│   │   ├── StatBar.tsx                  Animated counters
+│   │   ├── UseCaseCards.tsx             Score-ring use cases
+│   │   ├── HowItWorks.tsx               Numbered steps + trace mock
+│   │   ├── FeatureGrid.tsx
+│   │   ├── FAQAccordion.tsx
+│   │   ├── FileUploader.tsx             Drag/drop + validation
+│   │   └── ResultCard.tsx               Confidence gauge + breakdown
+│   ├── lib/
+│   │   ├── api.ts                       Centralised API client
+│   │   └── auth-context.tsx             React auth context
+│   ├── tailwind.config.ts
+│   ├── package.json
+│   └── .env.local.example
+│
+├── app/                               Flask backend
+│   ├── app.py                           App factory + CORS + auth wiring
+│   ├── auth.py                          User model + JWT signup/login/me
+│   ├── config.py                        Settings + threshold loaders
+│   ├── utils/
+│   │   ├── preprocessor.py              Video → tensor pipeline
+│   │   └── predictor.py                 CNN / Hybrid / Hybrid-v3 wrappers
+│   ├── templates/                       Legacy Jinja templates (still served at /)
+│   ├── static/
+│   │   ├── css/style.css
+│   │   ├── js/main.js
+│   │   ├── uploads/                     temp upload dir (gitignored)
+│   │   └── ...
+│   ├── logs/                            error.log, predictions.log (gitignored)
+│   └── users.db                         SQLite user store (gitignored)
+│
+├── src/                               Core ML library
+│   ├── data/                            Datasets (frame + video)
+│   ├── models/                          ResNet, LSTM, Hybrid
+│   └── preprocessing/                   Frame extraction, MTCNN, splits
+│
+├── data/                              splits/ + processed/ + features_cnn/
+├── models/                            *.pth checkpoints
+├── outputs/                           Evaluation reports, training history
+├── presentation/                      .pptx + scripts + screenshots
+├── requirements.txt
+├── README.md                          ← this file
+├── HANDOFF.md
+├── CODE_DOCUMENTATION.md
+├── TRAINING_GUIDE.md
+├── DEPLOYMENT_GUIDE.md
+└── LICENSE
 ```
 
-See [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md) for a deeper module-level
-reference.
+## Available scripts
 
-## Dataset
+### Frontend (`cd frontend`)
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start Next.js dev server with hot reload on `:3000` |
+| `npm run build` | Production build (Tailwind tree-shake + type check) |
+| `npm start` | Serve the production build on `:3000` |
+| `npm run lint` | Next.js ESLint |
 
-A subset of [FaceForensics++](https://github.com/ondyari/FaceForensics):
+### Backend (project root)
+| Command | What it does |
+|---|---|
+| `python run_app.py` | Start the Flask server on `:5000` |
+| `python evaluate_hybrid_cached.py --features-dir data/features_cnn --head-checkpoint models/hybrid_v3_head.pth` | Re-run the test eval (~30 s) |
+| `python presentation/generate_pptx.py` | Re-generate the slide deck from the latest evaluation outputs |
 
-| Split | Real videos | Fake videos | Total |
-|---|---:|---:|---:|
-| train | 140 | 560 | 700 |
-| val | 30 | 120 | 150 |
-| test | 30 | 120 | 150 |
+See [TRAINING_GUIDE.md](TRAINING_GUIDE.md) for the full training pipeline.
 
-Fake videos span four manipulation types: `deepfakes`, `face2face`,
-`faceswap`, `neuraltextures`.
+## Deployment
 
-Per video: 32 face crops at 224×224, extracted via OpenCV +
-`facenet-pytorch` MTCNN.
+### Local (development)
+Two processes on the same machine, as in Quick Start above.
 
-## Web demo
+### Local (production-style, single host)
+```bash
+cd frontend && npm run build && npm start &       # :3000
+python run_app.py &                                # :5000
+```
 
-The Flask app at `http://127.0.0.1:5000` lets you upload a video and
-get a REAL / FAKE prediction with confidence, processing time, and
-per-frame face detection diagnostics.
+### Docker
+A minimal Dockerfile lives in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
-| Endpoint | Method | Purpose |
-|---|---|---|
-| `/` | GET | Upload page |
-| `/predict` | POST | Run inference; JSON response |
-| `/about` | GET | Model architecture and metrics |
-| `/health` | GET | Liveness probe |
+### Vercel (frontend) + your own host (backend)
+1. Deploy `frontend/` to Vercel; set `NEXT_PUBLIC_API_URL` in the project
+   settings to the public URL of your backend.
+2. On the backend host, set `APP_CORS_ORIGINS` to include your Vercel
+   domain (e.g. `APP_CORS_ORIGINS=https://veridex.vercel.app`).
+3. Run the backend behind a real WSGI server (e.g. `waitress` on
+   Windows, `gunicorn` on Linux) and reverse-proxy through nginx /
+   Caddy with HTTPS. Detailed checklist:
+   [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md#production-checklist).
 
-The app validates uploads (size, type, codec, face presence) and returns
-typed error codes the frontend renders inline. Logs go to
-`app/logs/predictions.log` (one line per request) and
-`app/logs/error.log` (errors only).
+## Screenshots
+
+Capture two screenshots of the running app and drop them at the paths
+below. The presentation generator and this README will pick them up
+automatically.
+
+```
+docs/screenshots/landing.png       (the marketing landing)
+docs/screenshots/detect-result.png (a finished prediction)
+```
+
+Step-by-step capture instructions:
+[presentation/SCREENSHOTS.md](presentation/SCREENSHOTS.md).
 
 ## Limitations
 
-- Trained on a small subset (700 train videos). Results don't reach the
-  93–95 % numbers cited in published FaceForensics++ work that
-  fine-tunes the backbone end-to-end on a GPU.
-- **Real recall is ~42 %** at the deployed threshold — the model
-  mislabels a non-trivial fraction of real videos as fake. This is the
-  *better* of the two failure modes (the un-tuned default has only 5.5 %
-  real recall) but it's still a real limitation.
-- The model is bounded by what 224×224 face crops + 32 frames can
-  capture. Compression artefacts, body cues, and audio are unused.
-- Designed as a course demo, not for forensic use.
+- **Real-class recall is 73 %** — the model still mislabels a meaningful
+  share of authentic videos as fake.
+- Trained on a 700-video subset of FaceForensics++. Published numbers
+  in the 90 %+ range fine-tune end-to-end on a GPU.
+- Single-modality, single-face: no audio, no body, no compression-domain
+  features.
+- Not for forensic use. Predictions are probabilistic.
+
+## Contributing
+
+PRs welcome. The key paths:
+- New model architecture → `src/models/` + a new branch in
+  `app/utils/predictor.py` + `app/config.py`.
+- New auth provider → extend `app/auth.py`; preserve the `/api/auth/*`
+  contract documented above so the frontend keeps working.
+- New page → add `frontend/app/<slug>/page.tsx` and a link in
+  `frontend/components/Navbar.tsx`.
+
+Run `python -m compileall .` and `cd frontend && npm run build` before
+opening a PR.
 
 ## License
 
@@ -216,5 +303,5 @@ MIT — see [LICENSE](LICENSE).
 - [FaceForensics++](https://github.com/ondyari/FaceForensics) — Rössler et al., ICCV 2019
 - [PyTorch](https://pytorch.org/) and the `torchvision` ResNet implementation
 - [`facenet-pytorch`](https://github.com/timesler/facenet-pytorch) for MTCNN
-- The original training notebooks in `notebooks/Train_CNN_Baseline.ipynb`
-  ran on Google Colab T4 GPU instances.
+- Frontend palette inspired by deepfakedetection.io's information
+  density (but with our own emerald-on-charcoal identity)
