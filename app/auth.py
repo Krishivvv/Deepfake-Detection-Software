@@ -60,7 +60,8 @@ class User(db.Model):
 
 def _make_token(user: User) -> str:
     payload = {
-        "sub": user.id,
+        # RFC 7519 requires `sub` to be a string. PyJWT >= 2.10 enforces this.
+        "sub": str(user.id),
         "email": user.email,
         "iat": dt.datetime.utcnow(),
         "exp": dt.datetime.utcnow() + dt.timedelta(days=TOKEN_TTL_DAYS),
@@ -98,7 +99,11 @@ def auth_required(fn):
         payload = _decode_token(token)
         if payload is None:
             return _err(401, "invalid_token", "Token is invalid or expired.")
-        user = db.session.get(User, int(payload["sub"]))
+        try:
+            sub_int = int(payload["sub"])
+        except (KeyError, ValueError, TypeError):
+            return _err(401, "invalid_token", "Token is invalid or expired.")
+        user = db.session.get(User, sub_int)
         if user is None:
             return _err(401, "user_gone", "Account no longer exists.")
         g.current_user = user

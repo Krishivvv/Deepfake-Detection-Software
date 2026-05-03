@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  background: theme('colors.ink.900');
+  color: theme('colors.mint.50');
+  font-family: theme('fontFamily.sans');
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: theme('colors.mint.500');
+  color: theme('colors.ink.900');
+}
+
+@layer components {
+  .container-page {
+    @apply max-w-6xl mx-auto px-5 sm:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold
+           transition-all duration-200 ease-out select-none
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-mint-400/60
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-mint-500 text-ink-900 shadow-glow
+           hover:bg-mint-400 hover:shadow-glow-lg hover:-translate-y-0.5
+           active:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply btn bg-ink-700 text-mint-50 border border-ink-500
+           hover:border-mint-500/50 hover:bg-ink-600;
+  }
+
+  .btn-ghost {
+    @apply btn text-mint-100 hover:text-mint-300 hover:bg-ink-700/60 border border-transparent;
+  }
+
+  .card {
+    @apply rounded-2xl border border-ink-500/70 bg-ink-700/60 backdrop-blur
+           shadow-sink;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-300 ease-out
+           hover:border-mint-500/40 hover:bg-ink-700 hover:-translate-y-1
+           hover:shadow-glow-sm;
+  }
+
+  .input {
+    @apply w-full rounded-xl bg-ink-800 border border-ink-500 px-4 py-3 text-mint-50
+           placeholder:text-ink-300 transition
+           focus:outline-none focus:border-mint-500/60 focus:shadow-glow-sm;
+  }
+
+  .label {
+    @apply block text-xs uppercase tracking-[0.14em] text-ink-300 font-semibold mb-2;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-mint-500/30
+           bg-mint-500/10 px-3 py-1 text-xs font-medium text-mint-300;
+  }
+
+  .heading-xl {
+    @apply text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.04];
+  }
+
+  .heading-lg {
+    @apply text-3xl sm:text-4xl font-semibold tracking-tight;
+  }
+
+  .heading-md {
+    @apply text-xl sm:text-2xl font-semibold tracking-tight;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
+  }
+}
+
+@layer utilities {
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 36px 36px;
+    background-position: 0 0, 0 0;
+  }
+
+  .mask-fade-y {
+    mask-image: linear-gradient(180deg, black 60%, transparent 100%);
+  }
+
+  .scroll-mt-page {
+    scroll-margin-top: 5rem;
+  }
+}
