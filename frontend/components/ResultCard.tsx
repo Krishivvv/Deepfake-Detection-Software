@@ -98,8 +98,8 @@ function ConfidenceGauge({
   value: number;
   tone: "rose" | "mint";
 }) {
-  const stroke = tone === "rose" ? "#FB7185" : "#34D399";
-  const trackColor = "rgba(255,255,255,0.06)";
+  const stroke = tone === "rose" ? "#F43F5E" : "#6366F1";
+  const trackColor = "rgba(15,23,42,0.08)";
   const radius = 70;
   const circumference = Math.PI * radius;
   const offset = circumference - (Math.min(100, Math.max(0, value)) / 100) * circumference;

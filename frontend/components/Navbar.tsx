@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -56,22 +57,14 @@ export function Navbar() {
     >
       <div className="container-page flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-mint-500/15 ring-1 ring-mint-500/40 group-hover:ring-mint-400">
-            <span className="absolute inset-0 rounded-lg bg-mint-500/20 blur-md opacity-70 group-hover:opacity-100 transition" />
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="relative h-4 w-4 text-mint-300"
-              aria-hidden
-            >
-              <path d="M12 2 4 6v6c0 5 3.5 9.4 8 10 4.5-.6 8-5 8-10V6l-8-4z" />
-              <path d="m9 12 2 2 4-4" />
-            </svg>
-          </span>
+          <Image
+            src="/communication-skills.png"
+            alt=""
+            width={40}
+            height={40}
+            priority
+            className="h-9 w-9 object-contain transition-transform group-hover:scale-105"
+          />
           <span className="font-semibold tracking-tight text-mint-50">
             Veridex
           </span>

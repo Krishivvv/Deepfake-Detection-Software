@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html, body {
@@ -16,7 +16,7 @@ html, body {
 
 ::selection {
   background: theme('colors.mint.500');
-  color: theme('colors.ink.900');
+  color: #ffffff;
 }
 
 @layer components {
@@ -32,8 +32,8 @@ html, body {
   }
 
   .btn-primary {
-    @apply btn bg-mint-500 text-ink-900 shadow-glow
-           hover:bg-mint-400 hover:shadow-glow-lg hover:-translate-y-0.5
+    @apply btn bg-mint-500 text-white shadow-glow
+           hover:bg-mint-600 hover:shadow-glow-lg hover:-translate-y-0.5
            active:translate-y-0;
   }
 
@@ -85,15 +85,15 @@ html, body {
   }
 
   .text-glow {
-    text-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
+    text-shadow: 0 0 24px rgba(99, 102, 241, 0.35);
   }
 }
 
 @layer utilities {
   .grid-bg {
     background-image:
-      linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+      linear-gradient(rgba(15,23,42,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15,23,42,0.05) 1px, transparent 1px);
     background-size: 36px 36px;
     background-position: 0 0, 0 0;
   }

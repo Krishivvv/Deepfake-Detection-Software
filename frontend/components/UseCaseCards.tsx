@@ -96,7 +96,7 @@ function ScoreRing({
   const radius = 22;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (value / 100) * circumference;
-  const stroke = tone === "warn" ? "#FB7185" : "#34D399";
+  const stroke = tone === "warn" ? "#F43F5E" : "#6366F1";
   const labelTone =
     tone === "warn" ? "text-rose-400" : "text-mint-300";
 
@@ -107,7 +107,7 @@ function ScoreRing({
           cx="28"
           cy="28"
           r={radius}
-          stroke="rgba(255,255,255,0.08)"
+          stroke="rgba(15,23,42,0.10)"
           strokeWidth="6"
           fill="none"
         />

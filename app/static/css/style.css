@@ -1,17 +1,17 @@
 :root {
-  --navy: #1E2761;
-  --teal: #028090;
-  --teal-light: #4FB3BF;
-  --bg: #F4F6FA;
+  --navy: #4F46E5;          /* indigo for headings (was deep navy) */
+  --teal: #7C3AED;          /* vibrant violet primary accent */
+  --teal-light: #A78BFA;    /* light violet secondary accent */
+  --bg: #F7F8FC;
   --card: #FFFFFF;
-  --text: #1B1F3B;
-  --muted: #6E7A8A;
-  --border: #E2E6EF;
-  --danger: #B23A48;
-  --danger-bg: #FCE8EB;
-  --success: #1F7A4D;
-  --success-bg: #E4F6EB;
-  --shadow: 0 6px 24px rgba(20, 30, 60, 0.08);
+  --text: #0F172A;
+  --muted: #64748B;
+  --border: #E5E7F0;
+  --danger: #E11D48;
+  --danger-bg: #FFE4E6;
+  --success: #059669;
+  --success-bg: #D1FAE5;
+  --shadow: 0 8px 28px rgba(79, 70, 229, 0.12);
 }
 
 * { box-sizing: border-box; }
@@ -31,7 +31,7 @@ body {
 }
 
 .topbar {
-  background: var(--navy);
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 55%, #F472B6 100%);
   color: #fff;
   padding: 0.9rem 0;
 }
@@ -47,7 +47,7 @@ body {
   letter-spacing: 0.02em;
 }
 .topbar nav a {
-  color: #cfd6e6;
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
   margin-left: 1rem;
   font-size: 0.95rem;
@@ -84,12 +84,12 @@ h2 { color: var(--navy); margin-top: 1.5rem; }
   border: 2px dashed var(--teal-light);
   border-radius: 10px;
   padding: 2.4rem 1rem;
-  background: #FAFCFE;
+  background: #FAFAFE;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 .dropzone:hover, .dropzone.dragover {
-  background: #ECF6F8;
+  background: #EDE9FE;
   border-color: var(--teal);
 }
 .dropzone .dz-icon {
@@ -109,11 +109,11 @@ h2 { color: var(--navy); margin-top: 1.5rem; }
   font-size: 0.95rem;
   text-decoration: none;
   cursor: pointer;
-  background: #EEF1F8;
+  background: #F1F2FA;
   color: var(--text);
   transition: opacity 0.1s ease, transform 0.05s ease, background 0.1s ease;
 }
-.btn:hover:not(:disabled) { background: #E1E6F1; }
+.btn:hover:not(:disabled) { background: #E5E7F0; }
 .btn:active:not(:disabled) { transform: translateY(1px); }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
@@ -121,7 +121,7 @@ h2 { color: var(--navy); margin-top: 1.5rem; }
   background: var(--teal);
   color: #fff;
 }
-.btn-primary:hover:not(:disabled) { background: #02717D; }
+.btn-primary:hover:not(:disabled) { background: #6D28D9; }
 
 .status {
   display: flex; align-items: center; gap: 0.7rem;
@@ -130,7 +130,7 @@ h2 { color: var(--navy); margin-top: 1.5rem; }
 }
 .spinner {
   width: 18px; height: 18px;
-  border: 3px solid #cfd6e6;
+  border: 3px solid #E5E7F0;
   border-top-color: var(--teal);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
@@ -145,12 +145,12 @@ h2 { color: var(--navy); margin-top: 1.5rem; }
 }
 .alert-error {
   background: var(--danger-bg);
-  border-color: #f1c4cc;
+  border-color: #FCA5A5;
   color: var(--danger);
 }
 .alert-success {
   background: var(--success-bg);
-  border-color: #bce4cd;
+  border-color: #86EFAC;
   color: var(--success);
 }
 
@@ -167,7 +167,7 @@ h2 { color: var(--navy); margin-top: 1.5rem; }
 .confidence-wrap { margin: 0.5rem 0 1rem; }
 .confidence-bar {
   height: 12px;
-  background: #E5E9F2;
+  background: #EEF0F8;
   border-radius: 6px;
   overflow: hidden;
 }
@@ -204,6 +204,36 @@ h2 { color: var(--navy); margin-top: 1.5rem; }
 .kv-table th { color: var(--muted); font-weight: 500; width: 30%; }
 
 .footer-note { margin-top: 1.5rem; }
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 0 1.75rem;
+  margin-top: 2rem;
+  background: var(--card);
+}
+.site-footer .container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.gh-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.gh-link:hover {
+  color: var(--teal);
+  border-color: var(--teal-light);
+  background: #FAFAFE;
+}
 
 @media (max-width: 600px) {
   .card { padding: 1.4rem; }
