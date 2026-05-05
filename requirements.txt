@@ -9,8 +9,15 @@ Pillow>=10.0
 tqdm>=4.65
 
 # Video / face preprocessing
-opencv-python>=4.8
+opencv-python-headless>=4.8
 facenet-pytorch>=2.5
 
-# Web demo
+# Web backend
 flask>=3.0,<4.0
+flask-cors>=4.0
+flask-sqlalchemy>=3.1
+flask-bcrypt>=1.0
+pyjwt>=2.8
+
+# Production WSGI server (used when SERVE_WITH_WAITRESS=1)
+waitress>=3.0

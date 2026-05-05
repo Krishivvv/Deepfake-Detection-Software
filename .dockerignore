@@ -1,0 +1,57 @@
+# Don't ship anything not strictly needed at inference time.
+
+# Frontend (Vercel-hosted separately)
+frontend/
+
+# Heavy data directories
+data/raw/
+data/download/
+data/processed/
+data/features/
+data/features_cnn/
+data/splits/
+data/*.py
+notebooks/
+
+# Training-only checkpoints (the deployed app loads only the two below)
+models/hybrid_smoketest.pth
+models/hybrid_best.pth
+models/hybrid_head_only.pth
+models/hybrid_v3_best.pth
+
+# Python build artefacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Local databases + logs
+app/users.db
+app/logs/
+app/static/uploads/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docs / presentation (kept out of the runtime image)
+presentation/
+docs/
+*.md
+!app/templates/*.md
+
+# Outputs except thresholds
+outputs/*.png
+outputs/*.csv
+outputs/*.txt
+outputs/*.json
+!outputs/threshold_cnn.json
+!outputs/threshold_hybrid_v3.json
+outputs/*.log
+
+# Git
+.git/
+.gitignore

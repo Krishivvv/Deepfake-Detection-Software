@@ -54,6 +54,13 @@ venv.bak/
 !/app/static/uploads/.gitkeep
 /app/logs/*
 !/app/logs/.gitkeep
+/app/users.db
+
+# Frontend build / dependencies (frontend/.gitignore covers these in
+# its own subtree, this is a belt-and-braces guard at the repo root).
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
 
 # OS specific
 .DS_Store
