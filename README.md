@@ -12,7 +12,7 @@ hybrid CNN-LSTM model returns a calibrated **REAL** / **FAKE** verdict
 in ~15 seconds, all on your machine — no third-party APIs.
 
 > **Headline numbers** (held-out 150-video test set):
-> **82.0 % accuracy · ROC-AUC 0.870 · macro-F1 0.751 · real-recall 73 %.**
+> **82.0 % accuracy · ROC-AUC 0.870 · macro-F1 0.751 · **
 > Architecture, training procedure and limitations are documented in
 > [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md) and
 > [TRAINING_GUIDE.md](TRAINING_GUIDE.md).
