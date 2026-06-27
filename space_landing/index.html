@@ -60,7 +60,7 @@
       <div class="metric"><b>ResNet-50 + BiLSTM</b><span>Architecture</span></div>
     </div>
 
-    <a class="cta" id="launch" href="https://frontend-ten-mu-27.vercel.app">
+    <a class="cta" id="launch" href="https://frontend-ten-mu-27.vercel.app" target="_top" rel="noopener">
       Open the live Veridex app →
     </a>
 
@@ -80,12 +80,17 @@
   <script>
     var TARGET = "https://frontend-ten-mu-27.vercel.app";
     document.getElementById("launch").setAttribute("href", TARGET);
+    function go() {
+      // Break out of the Hugging Face iframe so the whole tab navigates.
+      try { window.top.location.href = TARGET; }
+      catch (e) { window.location.href = TARGET; }
+    }
     var n = 9;
     var el = document.getElementById("secs");
     var t = setInterval(function () {
       n -= 1;
       if (el) el.textContent = String(n);
-      if (n <= 0) { clearInterval(t); window.location.href = TARGET; }
+      if (n <= 0) { clearInterval(t); go(); }
     }, 1000);
   </script>
 </body>
