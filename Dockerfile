@@ -26,31 +26,41 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Install Python deps first so they cache when only source changes.
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Install CPU-only torch first (smaller, no CUDA) so the requirements step
+# below sees torch already satisfied and won't pull the multi-GB CUDA build.
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
+        torch torchvision
 
-# Copy only the parts of the project the runtime needs. Heavy data
-# directories (data/raw, data/processed, data/features_cnn, training
-# notebooks, the frontend) are excluded via .dockerignore.
+# Install the rest of the Python deps (+ huggingface_hub for weight fetch).
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt "huggingface_hub>=0.23,<1.0"
+
+# Copy only the parts of the project the runtime needs. Weights are NOT baked
+# in — they are pulled from the HF Hub at startup (see prefetch_weights.py).
+# Heavy data dirs, notebooks and the frontend are excluded via .dockerignore.
 COPY app/ ./app/
 COPY src/ ./src/
-COPY models/ ./models/
-COPY outputs/threshold_cnn.json outputs/threshold_hybrid_v3.json ./outputs/
+COPY scripts/prefetch_weights.py ./scripts/prefetch_weights.py
 COPY run_app.py ./run_app.py
 
-# Hugging Face Spaces (Docker SDK) routes traffic to port 7860 by
-# default. Other PaaS hosts will set $PORT — we honour that too.
+# HF Spaces sets HOME=/app and runs as a non-root user; ensure the HF cache
+# and a writable models/ dir exist.
+ENV HF_HOME=/app/.cache/huggingface
+RUN mkdir -p models /app/.cache/huggingface
+
+# Hugging Face Spaces (Docker SDK) routes traffic to port 7860 by default.
 ENV APP_HOST=0.0.0.0 \
     APP_PORT=7860 \
     APP_MODEL_KIND=hybrid_v3 \
-    SERVE_WITH_WAITRESS=1
+    SERVE_WITH_WAITRESS=1 \
+    VERIDEX_HF_REPO=krishivvv/veridex-deepfake
 
 EXPOSE 7860
 
-# HF Spaces / Render / Cloud Run all override APP_CORS_ORIGINS at deploy
-# time — set yours to the public Vercel URL of the frontend.
-HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+# HF Spaces / Render / Cloud Run override APP_CORS_ORIGINS at deploy time —
+# set it to the public Vercel URL of the frontend.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=180s --retries=3 \
     CMD curl --fail http://localhost:${APP_PORT}/health || exit 1
 
-CMD ["python", "run_app.py"]
+# Pull weights from the Hub, then start the production WSGI server.
+CMD ["sh", "-c", "python scripts/prefetch_weights.py && python run_app.py"]
