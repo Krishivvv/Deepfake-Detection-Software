@@ -89,5 +89,40 @@ URL. Put that URL at the top of [README.md](README.md).
 - `.pth` weights in plain git (gitignored; hosted on Hub/LFS instead).
 - `app/users.db`, secrets, or `APP_SECRET_KEY` (set real secrets via env).
 
+## 6. Portfolio recommendation
+
+**Pin this repo and position it as your flagship ML/CV project.** It is the
+strongest portfolio piece because it spans the full lifecycle: data pipeline →
+transfer-learning → temporal modelling → calibrated thresholds → a working
+full-stack product → a one-click public demo → tests/CI/model card.
+
+- **GitHub pin order:** #1 of your six pinned repos. Lead with the live-demo
+  link and the metrics table — recruiters skim.
+- **Resume line:** "Veridex — deepfake video detector (ResNet-50 + BiLSTM,
+  PyTorch). 0.80 acc / 0.87 ROC-AUC on FaceForensics++; shipped a Flask +
+  Next.js app and a public Gradio demo with Grad-CAM." Keep the name
+  **Veridex** (matches this repo; align the resume spelling to it).
+- **Talking points for interviews:** train/serve preprocessing parity;
+  why a cached-feature LSTM head beats end-to-end on CPU; val-tuned decision
+  threshold and the precision/recall trade-off; honest limitations (real-class
+  recall, dataset scope).
+
+### Set the repo description + topics
+Outward-facing change — run these yourself after review (requires `gh auth login`):
+
+```bash
+gh repo edit Krishivvv/Deepfake-Detection-Software \
+  --description "Veridex — deepfake video detector (ResNet-50 + BiLSTM, PyTorch). Flask + Next.js app and a Gradio demo with Grad-CAM. 0.80 acc / 0.87 ROC-AUC on FaceForensics++." \
+  --add-topic deepfake-detection \
+  --add-topic computer-vision \
+  --add-topic pytorch \
+  --add-topic resnet \
+  --add-topic transfer-learning \
+  --add-topic lstm \
+  --add-topic gradio \
+  --add-topic huggingface-spaces
+```
+
 ---
-*Portfolio positioning guidance is in [§ Portfolio recommendation](#6-portfolio-recommendation) below.*
+*This record is the source of truth for the public demo. Update the live-demo
+URL in [README.md](README.md) once the Space is live.*

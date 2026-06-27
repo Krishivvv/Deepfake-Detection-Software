@@ -11,11 +11,42 @@ A full-stack deepfake video detector. Drop a clip into the web UI; the
 hybrid CNN-LSTM model returns a calibrated **REAL** / **FAKE** verdict
 in ~15 seconds, all on your machine — no third-party APIs.
 
-> **Headline numbers** (held-out 150-video test set):
-> **82.0 % accuracy · ROC-AUC 0.870 · macro-F1 0.751 · **
-> Architecture, training procedure and limitations are documented in
+**▶ Live demo:** _Hugging Face Space link goes here once deployed_
+(`https://huggingface.co/spaces/Krishivvv/veridex`) — upload a clip, get a
+verdict + confidence + Grad-CAM heatmap on free CPU. See [DEPLOYMENT.md](DEPLOYMENT.md).
+
+> **Headline numbers** (held-out 150-video test set, `hybrid_v3` @ thr 0.575):
+> **80.0 % accuracy · ROC-AUC 0.870 · macro-F1 0.731**
+> (82.0 % accuracy at thr 0.50). Full breakdown in the
+> **[Model Card](MODEL_CARD.md)**; architecture and training in
 > [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md) and
 > [TRAINING_GUIDE.md](TRAINING_GUIDE.md).
+
+> **Reproduce the metrics:** `python evaluate.py --model hybrid_v3`
+> (reruns the cached-feature eval in ~30 s and writes reports to `outputs/`).
+
+## Results
+
+Held-out test set: **150 videos** (120 fake / 30 real). Reproduced from cached
+features by `python evaluate.py --model hybrid_v3`.
+
+| Model | Acc | ROC-AUC | Macro-F1 | F1 fake | F1 real | Thr |
+|---|---|---|---|---|---|---|
+| **`hybrid_v3`** (deployed) | **0.800** | **0.870** | 0.731 | 0.867 | 0.595 | 0.575 |
+| `hybrid_v3` @ 0.50 | 0.820 | 0.870 | 0.751 | 0.882 | 0.620 | 0.50 |
+| `cnn` baseline (frames) | 0.776 | 0.766 | 0.643 | 0.861 | 0.426 | 0.75 |
+
+Confusion matrix @ 0.575 `[[TN,FP],[FN,TP]] = [[22,8],[22,98]]`. Plots and raw
+reports are written to [`outputs/`](outputs/) (`hybrid_confusion_matrix.png`,
+`hybrid_evaluation.txt`, `*_metrics.json`).
+
+### Example prediction (API response)
+```json
+{ "label": "FAKE", "confidence_pct": 95.57, "probability_fake_pct": 95.57,
+  "threshold": 0.575, "device": "cpu", "video_info": { "frames_with_faces": 32 } }
+```
+The Gradio demo additionally returns a **Grad-CAM heatmap** highlighting the
+facial regions that drove the score. Full metric provenance: **[Model Card](MODEL_CARD.md)**.
 
 ## Tech stack
 
@@ -228,9 +259,17 @@ deepfake-detection/
 ### Backend (project root)
 | Command | What it does |
 |---|---|
-| `python run_app.py` | Start the Flask server on `:5000` |
-| `python evaluate_hybrid_cached.py --features-dir data/features_cnn --head-checkpoint models/hybrid_v3_head.pth` | Re-run the test eval (~30 s) |
+| `python cli.py serve` (or `python run_app.py`) | Start the Flask server on `:5000` |
+| `python evaluate.py --model hybrid_v3` | Re-run the deployed-model test eval (~30 s) |
+| `python evaluate.py --model cnn` | Evaluate the frame-level CNN baseline |
+| `python extract_features.py --backbone cnn` | Cache backbone features for head training |
+| `python train_hybrid_v2.py` | Train the LSTM temporal head on cached features |
+| `python gradio_app.py` | Launch the public Gradio demo locally |
 | `python presentation/generate_pptx.py` | Re-generate the slide deck from the latest evaluation outputs |
+
+All scripts read defaults from `config.yaml` (no hard-coded paths) and accept
+overrides via flags. See [`scripts/archive/`](scripts/archive/) for the legacy
+per-model scripts these consolidated.
 
 See [TRAINING_GUIDE.md](TRAINING_GUIDE.md) for the full training pipeline.
 
