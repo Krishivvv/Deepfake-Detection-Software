@@ -1,11 +1,11 @@
 """
 Train the LSTM temporal head on cached ResNet-50 features (Phase 2).
 
-Run extract_features.py first. This script trains only
+Run `extract_features.py --backbone cnn` first. This script trains only
 LSTMTemporalClassifier on the cached features (CPU-friendly, ~10-20 min for
 20 epochs on 700 videos), then assembles the trained head with a fresh
-ImageNet-pretrained ResNet-50 backbone into a HybridCNNLSTM checkpoint that
-evaluate_hybrid.py can load unchanged.
+ImageNet-pretrained ResNet-50 backbone into a HybridCNNLSTM checkpoint, and
+saves the head-only weights consumed by `evaluate.py --model hybrid_v3`.
 
 Class imbalance (4:1 fake:real) is corrected via WeightedRandomSampler.
 Early stopping uses macro-F1 on val so a "predict-everything-fake" collapse

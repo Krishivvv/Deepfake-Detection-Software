@@ -1,0 +1,63 @@
+# Veridex — central configuration
+#
+# Single source of truth for paths, preprocessing, and model hyper-parameters.
+# Every CLI script (train / evaluate / extract-features) reads its defaults from
+# here so there are no hard-coded machine paths anywhere in the codebase.
+# All paths are RELATIVE to the project root (the directory holding this file);
+# they are resolved at runtime, so the repo runs unchanged on any machine.
+#
+# Override any value on the command line, e.g.:
+#   python cli.py evaluate --model hybrid_v3 --threshold 0.5
+
+project:
+  # Directories (relative to project root). Created on demand.
+  data_dir: data
+  splits_dir: data/splits          # train.csv / val.csv / test.csv
+  features_dir: data/features      # frozen ImageNet ResNet-50 features
+  features_cnn_dir: data/features_cnn  # trained CNN-baseline backbone features
+  models_dir: models
+  outputs_dir: outputs
+
+# Preprocessing — shared by training AND inference (must stay identical).
+preprocessing:
+  image_size: 224
+  num_frames: 32                   # frames sampled per video for sequence models
+  imagenet_mean: [0.485, 0.456, 0.406]
+  imagenet_std: [0.229, 0.224, 0.225]
+
+# Reproducibility
+seed: 42
+
+# Model registry. `kind` is selected with --model on the CLI and by
+# APP_MODEL_KIND in the web app. Thresholds are val-tuned for macro-F1.
+models:
+  cnn:                             # frame-level ResNet-50 baseline
+    checkpoint: models/cnn_baseline_best.pth
+    dropout: 0.4
+    trainable_backbone_layers: 1
+    threshold: 0.75
+  hybrid:                          # legacy end-to-end CNN-LSTM
+    checkpoint: models/hybrid_best.pth
+    lstm_hidden_size: 128
+    lstm_num_layers: 1
+    bidirectional: true
+    dropout: 0.5
+    threshold: 0.50
+  hybrid_v3:                       # DEPLOYED: CNN-baseline backbone + LSTM head
+    backbone_checkpoint: models/cnn_baseline_best.pth
+    head_checkpoint: models/hybrid_v3_head.pth
+    features_dir: data/features_cnn
+    lstm_hidden_size: 128
+    lstm_num_layers: 1
+    bidirectional: true
+    dropout: 0.5
+    threshold: 0.575
+
+# Training defaults (CNN baseline). Override per-run on the CLI.
+training:
+  batch_size: 32
+  epochs: 3
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  num_workers: 4
+  early_stop_patience: 5
