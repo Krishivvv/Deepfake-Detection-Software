@@ -43,10 +43,15 @@ COPY src/ ./src/
 COPY scripts/prefetch_weights.py ./scripts/prefetch_weights.py
 COPY run_app.py ./run_app.py
 
-# HF Spaces sets HOME=/app and runs as a non-root user; ensure the HF cache
-# and a writable models/ dir exist.
-ENV HF_HOME=/app/.cache/huggingface
-RUN mkdir -p models /app/.cache/huggingface
+# HF Spaces (Docker SDK) run as a non-root user (UID 1000). Create it, give it
+# ownership of /app and a writable HF cache + models/ + runtime dirs so weight
+# download, uploads, and logs all work at runtime.
+ENV HOME=/app \
+    HF_HOME=/app/.cache/huggingface
+RUN useradd -m -u 1000 user 2>/dev/null || true \
+    && mkdir -p models /app/.cache/huggingface app/static/uploads app/logs \
+    && chown -R 1000:1000 /app
+USER 1000
 
 # Hugging Face Spaces (Docker SDK) routes traffic to port 7860 by default.
 ENV APP_HOST=0.0.0.0 \
