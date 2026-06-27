@@ -15,4 +15,8 @@ huggingface_hub>=0.23,<1.0
 # which gradio 4.44's gradio_client can't parse ("argument of type 'bool' is
 # not iterable" at launch).
 pydantic>=2.0,<2.11
+# Pin fastapi<0.113 -> starlette<0.39: gradio 4.44 calls TemplateResponse with
+# the old (name, context) signature, which newer starlette rejects
+# ("unhashable type: 'dict'" / "localhost is not accessible" at launch).
+fastapi>=0.110,<0.113
 gradio>=4.44,<5.0
