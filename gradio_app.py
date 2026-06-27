@@ -228,4 +228,10 @@ def build_demo():
 
 
 if __name__ == "__main__":
-    build_demo().launch()
+    # On HF Spaces the app must bind to 0.0.0.0:7860; show_api=False avoids the
+    # schema-introspection path entirely (belt-and-braces against client bugs).
+    build_demo().launch(
+        server_name="0.0.0.0",
+        server_port=int(os.environ.get("PORT", 7860)),
+        show_api=False,
+    )
