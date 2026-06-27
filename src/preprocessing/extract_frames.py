@@ -10,9 +10,10 @@ Public API:
 """
 
 import os
+from typing import List
+
 import cv2
 import numpy as np
-from typing import List, Optional
 
 
 def extract_frames(
@@ -48,7 +49,6 @@ def extract_frames(
         raise IOError(f"Cannot open video: {video_path}")
 
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = cap.get(cv2.CAP_PROP_FPS)
 
     if total_frames < 1:
         cap.release()

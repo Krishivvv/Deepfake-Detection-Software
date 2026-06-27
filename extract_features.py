@@ -63,8 +63,9 @@ def parse_args() -> argparse.Namespace:
 
 def build_backbone(kind: str, cnn_ckpt: Path | None, device: torch.device) -> nn.Module:
     """Return a frozen 2048-d feature extractor (fc -> Identity)."""
-    from src.models.resnet_classifier import DeepfakeClassifier
     from torchvision import models
+
+    from src.models.resnet_classifier import DeepfakeClassifier
 
     if kind == "imagenet":
         backbone = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)

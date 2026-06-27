@@ -17,7 +17,6 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
-
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 VALID_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")

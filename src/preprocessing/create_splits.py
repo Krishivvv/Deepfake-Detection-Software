@@ -19,6 +19,7 @@ Usage:
 
 import os
 import sys
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -132,16 +133,16 @@ def main():
 
     # ── Summary ──────────────────────────────────────────────────────────
     print(f"\n{'-' * 60}")
-    print(f"  SPLIT SUMMARY")
+    print("  SPLIT SUMMARY")
     print(f"{'-' * 60}")
     print(f"  Train : {len(train_df):>5} videos  ({len(train_df)/total*100:.1f}%)")
     print(f"  Val   : {len(val_df):>5} videos  ({len(val_df)/total*100:.1f}%)")
     print(f"  Test  : {len(test_df):>5} videos  ({len(test_df)/total*100:.1f}%)")
     print(f"  Total : {total:>5} videos")
     print(f"{'-' * 60}")
-    print(f"  Labels: 0 = real, 1 = fake")
-    print(f"  Columns: video_path, label")
-    print(f"  NO files duplicated -- CSV mapping only [OK]")
+    print("  Labels: 0 = real, 1 = fake")
+    print("  Columns: video_path, label")
+    print("  NO files duplicated -- CSV mapping only [OK]")
     print(f"{'-' * 60}")
 
 

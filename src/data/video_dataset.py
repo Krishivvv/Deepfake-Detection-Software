@@ -8,7 +8,6 @@ folder, returned as a tensor of shape (T, 3, H, W) together with its label.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
 
 import pandas as pd
 import torch

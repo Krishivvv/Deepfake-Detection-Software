@@ -27,8 +27,6 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
-from torchvision import models
-from tqdm.auto import tqdm
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT))

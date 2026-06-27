@@ -29,8 +29,8 @@ for a "click and try" public link. So we **keep the full-stack app** (unchanged)
 
 Two supported hosting options (pick one at CHECKPOINT B):
 
-1. **Hugging Face Hub model repo** *(recommended)*
-   - Create a model repo, e.g. `Krishivvv/veridex-deepfake`.
+1. **Hugging Face Hub model repo** *(chosen)*
+   - Create a model repo: `krishivvv/veridex-deepfake`.
    - Upload `cnn_baseline_best.pth` (backbone) and `hybrid_v3_head.pth` (head).
    - The Space downloads them at startup via `huggingface_hub.hf_hub_download`,
      controlled by env vars `VERIDEX_HF_REPO`, `VERIDEX_BACKBONE_FILE`,
@@ -63,21 +63,14 @@ The two files needed by the demo (head is small):
 ## 4. Runbook (executed only after CHECKPOINT B sign-off)
 
 ```bash
-# 0. Auth once
+# 0. Auth once on THIS machine (weights live here; an Action can't upload them)
 huggingface-cli login
 
-# 1. Host weights (Option 1: Hub model repo)
-huggingface-cli repo create veridex-deepfake --type model
-huggingface-cli upload Krishivvv/veridex-deepfake models/cnn_baseline_best.pth
-huggingface-cli upload Krishivvv/veridex-deepfake models/hybrid_v3_head.pth
+# 1. One command does everything: model repo + weights + Space files
+python scripts/deploy_space.py
 
-# 2. Create the Space (Gradio SDK) and push the demo files
-huggingface-cli repo create veridex --type space --space_sdk gradio
-#   push: gradio_app.py, requirements-space.txt, README_HF_SPACE.md,
-#         src/, app/utils/, app/config.py   (NO weights, NO dataset)
-
-# 3. Set Space env vars (Settings → Variables):
-#    VERIDEX_HF_REPO=Krishivvv/veridex-deepfake
+# 2. Set Space variables (https://huggingface.co/spaces/krishivvv/Veridex → Settings):
+#    VERIDEX_HF_REPO=krishivvv/veridex-deepfake
 #    APP_MODEL_KIND=hybrid_v3
 ```
 

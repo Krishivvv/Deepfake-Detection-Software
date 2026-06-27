@@ -11,9 +11,9 @@ A full-stack deepfake video detector. Drop a clip into the web UI; the
 hybrid CNN-LSTM model returns a calibrated **REAL** / **FAKE** verdict
 in ~15 seconds, all on your machine — no third-party APIs.
 
-**▶ Live demo:** _Hugging Face Space link goes here once deployed_
-(`https://huggingface.co/spaces/Krishivvv/veridex`) — upload a clip, get a
-verdict + confidence + Grad-CAM heatmap on free CPU. See [DEPLOYMENT.md](DEPLOYMENT.md).
+**▶ Live demo:** <https://huggingface.co/spaces/krishivvv/Veridex> — upload a
+clip, get a verdict + confidence + Grad-CAM heatmap on free CPU.
+See [DEPLOYMENT.md](DEPLOYMENT.md).
 
 > **Headline numbers** (held-out 150-video test set, `hybrid_v3` @ thr 0.575):
 > **80.0 % accuracy · ROC-AUC 0.870 · macro-F1 0.731**

@@ -8,12 +8,13 @@ Usage:
     face_img = detector.detect_and_crop(frame)
 """
 
-import cv2
-import torch
-import numpy as np
-from PIL import Image
-from facenet_pytorch import MTCNN
 from typing import Optional, Tuple
+
+import cv2
+import numpy as np
+import torch
+from facenet_pytorch import MTCNN
+from PIL import Image
 
 
 class FaceDetector:
@@ -79,7 +80,7 @@ class FaceDetector:
 
             # Use the first (most prominent) face detected
             box = boxes[0]
-            
+
             # Apply margin (MTCNN does this automatically if returning a tensor,
             # but since we process boxes manually for full control, we apply it here)
             x_left = int(max(0, box[0] - self.margin))
@@ -99,7 +100,7 @@ class FaceDetector:
 
             return face_resized
 
-        except Exception as e:
+        except Exception:
             # We catch any unexpected exceptions (e.g., malformed image)
             # returning None allows the pipeline to log the error and continue
             return None

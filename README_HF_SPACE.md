@@ -5,10 +5,11 @@ colorFrom: green
 colorTo: gray
 sdk: gradio
 sdk_version: 4.44.0
+python_version: "3.11"
 app_file: gradio_app.py
 pinned: false
 license: mit
-short_description: Upload a video; ResNet-50 + BiLSTM flags deepfakes with Grad-CAM.
+short_description: Deepfake video detector with ResNet-50 + BiLSTM
 ---
 
 # Veridex — Deepfake Video Detector (live demo)
@@ -29,7 +30,7 @@ from a Hugging Face Hub model repo. Set these Space variables:
 
 | Variable | Example |
 |---|---|
-| `VERIDEX_HF_REPO` | `Krishivvv/veridex-deepfake` |
+| `VERIDEX_HF_REPO` | `krishivvv/veridex-deepfake` |
 | `VERIDEX_BACKBONE_FILE` | `cnn_baseline_best.pth` (default) |
 | `VERIDEX_HEAD_FILE` | `hybrid_v3_head.pth` (default) |
 

@@ -13,7 +13,7 @@ distribution matches training exactly — no drift.
 Weights are NOT bundled in git. They are pulled at startup from a Hugging Face
 Hub model repo (or found locally under ``models/``). Configure via env vars:
 
-    VERIDEX_HF_REPO       e.g. "Krishivvv/veridex-deepfake"  (model repo)
+    VERIDEX_HF_REPO       e.g. "krishivvv/veridex-deepfake"  (model repo)
     VERIDEX_BACKBONE_FILE default "cnn_baseline_best.pth"
     VERIDEX_HEAD_FILE     default "hybrid_v3_head.pth"
 """

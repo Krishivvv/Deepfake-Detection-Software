@@ -222,12 +222,12 @@ def main() -> None:
     )
 
     print(f"\nBest threshold (val macro-F1={best_row['macro_f1']:.4f}): {best_thr:.3f}")
-    print(f"Test @ tuned threshold:")
+    print("Test @ tuned threshold:")
     test_metrics = metrics_at(y_test, p_test, best_thr)
     for k in ("accuracy", "macro_f1", "f1_real", "f1_fake", "precision_real", "recall_real"):
         print(f"  {k:14s} = {test_metrics[k]:.4f}")
     print(f"Test ROC-AUC      = {roc_auc:.4f}")
-    print(f"\nReports:")
+    print("\nReports:")
     print(f"  {report_path}")
     print(f"  {cm_image_path}")
     print(f"  {sweep_csv}")

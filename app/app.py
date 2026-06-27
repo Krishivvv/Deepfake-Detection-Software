@@ -19,7 +19,10 @@ import uuid
 from pathlib import Path
 
 from flask import (
-    Flask, jsonify, render_template, request, send_from_directory, url_for,
+    Flask,
+    jsonify,
+    render_template,
+    request,
 )
 from flask_cors import CORS
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -32,10 +35,13 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from app.auth import init_auth  # noqa: E402
 from app.config import Config, load_threshold, predictor_kwargs  # noqa: E402
 from app.utils.predictor import (  # noqa: E402
-    ModelLoadError, PredictionError, build_predictor,
+    ModelLoadError,
+    PredictionError,
+    build_predictor,
 )
 from app.utils.preprocessor import (  # noqa: E402
-    PreprocessingError, VideoPreprocessor,
+    PreprocessingError,
+    VideoPreprocessor,
 )
 
 
@@ -172,7 +178,7 @@ def create_app() -> Flask:
         client_ip = request.headers.get("X-Forwarded-For", request.remote_addr or "?")
         t0 = time.time()
 
-        predictor: HybridPredictor | None = app.config.get("PREDICTOR")
+        predictor = app.config.get("PREDICTOR")  # CNN/Hybrid/HybridV3 predictor or None
         preprocessor: VideoPreprocessor | None = app.config.get("PREPROCESSOR")
         if predictor is None or preprocessor is None:
             return _err(503, "model_not_loaded",

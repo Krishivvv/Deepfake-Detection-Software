@@ -1,0 +1,34 @@
+name: Deploy Space (code sync)
+
+# Auto-syncs the Gradio demo CODE to the Hugging Face Space on every push to
+# main, using the HF_TOKEN repository secret. It does NOT upload weights —
+# those are hosted once in the model repo (krishivvv/veridex-deepfake) from a
+# machine that has them locally (see scripts/deploy_space.py without --code-only).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gradio_app.py"
+      - "config.yaml"
+      - "requirements-space.txt"
+      - "README_HF_SPACE.md"
+      - "src/**"
+      - "app/utils/**"
+      - "app/config.py"
+      - "scripts/deploy_space.py"
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "huggingface_hub>=0.23"
+      - name: Sync code to Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/deploy_space.py --code-only

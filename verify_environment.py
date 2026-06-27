@@ -11,8 +11,8 @@ correctly. It tests:
   6. Data science stack (NumPy, Pandas, Matplotlib, Seaborn, Scikit-learn)
 """
 
-import sys
 import os
+import sys
 
 # ─── Color helpers for terminal output ───────────────────────────────────────
 GREEN = "\033[92m"
@@ -101,14 +101,12 @@ def check_sklearn():
 check("Scikit-learn", check_sklearn)
 
 def check_tqdm():
-    from tqdm import tqdm
     import tqdm as tqdm_mod
     print(f"     tqdm {tqdm_mod.__version__}")
 check("tqdm", check_tqdm)
 
 def check_facenet():
-    from facenet_pytorch import MTCNN, InceptionResnetV1
-    print(f"     facenet-pytorch loaded")
+    print("     facenet-pytorch loaded")
 check("facenet-pytorch", check_facenet)
 
 def check_streamlit():
@@ -133,7 +131,7 @@ def test_tensor_arithmetic():
     a = torch.randn(3, 4)
     b = torch.randn(3, 4)
     c = a + b
-    d = a * b
+    _ = a * b
     e = torch.matmul(a, b.T)          # (3,4) x (4,3) → (3,3)
     assert c.shape == (3, 4)
     assert e.shape == (3, 3)
@@ -245,7 +243,7 @@ def test_opencv_video():
     cap.release()
     os.remove(tmp_path)
     assert count == 10, f"Expected 10 frames, read {count}"
-    print(f"     Wrote & read back 10 synthetic frames (64×64)")
+    print("     Wrote & read back 10 synthetic frames (64×64)")
 check("Video write / read round-trip", test_opencv_video)
 
 def test_opencv_transforms():
@@ -264,16 +262,15 @@ check("Image transforms (resize, gray)", test_opencv_transforms)
 header("5. Face Detection (facenet-pytorch)")
 
 def test_mtcnn():
-    from facenet_pytorch import MTCNN
-    import torch
-    from PIL import Image
     import numpy as np
+    from facenet_pytorch import MTCNN
+    from PIL import Image
 
     detector = MTCNN(keep_all=True, device="cpu")
     # Create a dummy 160×160 image (won't find a real face, but shouldn't crash)
     dummy_img = Image.fromarray(np.random.randint(0, 255, (160, 160, 3), dtype=np.uint8))
     boxes, probs = detector.detect(dummy_img)
-    print(f"     MTCNN initialised on CPU — detection ran without error")
+    print("     MTCNN initialised on CPU — detection ran without error")
 check("MTCNN face detector init + inference", test_mtcnn)
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -282,8 +279,8 @@ check("MTCNN face detector init + inference", test_mtcnn)
 header("6. Data Science Stack")
 
 def test_pandas_ops():
-    import pandas as pd
     import numpy as np
+    import pandas as pd
     df = pd.DataFrame({
         "video": [f"vid_{i}" for i in range(100)],
         "label": np.random.choice(["real", "fake"], 100),
@@ -295,9 +292,8 @@ def test_pandas_ops():
 check("Pandas DataFrame ops", test_pandas_ops)
 
 def test_sklearn_ops():
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score, classification_report
     import numpy as np
+    from sklearn.model_selection import train_test_split
     X = np.random.rand(100, 10)
     y = np.random.randint(0, 2, 100)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -310,12 +306,11 @@ def test_matplotlib_seaborn():
     import matplotlib
     matplotlib.use("Agg")              # non-interactive backend
     import matplotlib.pyplot as plt
-    import seaborn as sns
     import numpy as np
     fig, ax = plt.subplots()
     ax.plot(np.sin(np.linspace(0, 6, 50)))
     plt.close(fig)
-    print(f"     Matplotlib + Seaborn plot created (Agg backend)")
+    print("     Matplotlib + Seaborn plot created (Agg backend)")
 check("Matplotlib & Seaborn plotting", test_matplotlib_seaborn)
 
 # ═══════════════════════════════════════════════════════════════════════════════
