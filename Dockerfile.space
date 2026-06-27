@@ -1,0 +1,29 @@
+# Optional container parity for the Hugging Face Space (Gradio SDK Spaces
+# normally build from requirements-space.txt directly; this is for local/Docker
+# reproduction). CPU-only inference.
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    GRADIO_SERVER_NAME=0.0.0.0 \
+    GRADIO_SERVER_PORT=7860
+
+# OpenCV / video runtime deps.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ffmpeg libgl1 libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements-space.txt .
+RUN pip install -r requirements-space.txt
+
+# Only the code paths the demo needs (NO weights, NO dataset).
+COPY gradio_app.py config.yaml ./
+COPY src/ ./src/
+COPY app/__init__.py app/config.py ./app/
+COPY app/utils/ ./app/utils/
+
+EXPOSE 7860
+# VERIDEX_HF_REPO must be provided at runtime to fetch weights from the Hub.
+CMD ["python", "gradio_app.py"]
